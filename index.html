@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数字炸弹游戏</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #fff;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 25px;
+            text-align: center;
+            border-bottom: 3px solid #ff5722;
+        }
+        
+        .header h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #ff8a00, #da1b60);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+        }
+        
+        .card {
+            background: rgba(30, 30, 50, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+        }
+        
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #ff9800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .input-container {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #e0e0e0;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 2px solid #444;
+            background: rgba(20, 20, 30, 0.8);
+            color: white;
+            font-size: 1.1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            border-color: #ff5722;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255, 87, 34, 0.3);
+        }
+        
+        button {
+            background: linear-gradient(to right, #ff5722, #ff9800);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(255, 87, 34, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        
+        .player-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .player-tag {
+            background: rgba(255, 152, 0, 0.2);
+            border: 1px solid #ff9800;
+            border-radius: 50px;
+            padding: 8px 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .player-tag .fa-user {
+            color: #ff9800;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin: 25px 0;
+            gap: 20px;
+        }
+        
+        .info-box {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .info-box h3 {
+            color: #ff9800;
+            margin-bottom: 10px;
+        }
+        
+        .info-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ff5722;
+        }
+        
+        .current-player {
+            text-align: center;
+            font-size: 1.8rem;
+            margin: 25px 0;
+            color: #ff5722;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .range-display {
+            text-align: center;
+            font-size: 1.6rem;
+            margin: 20px 0;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #ff5722;
+        }
+        
+        .boom-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .boom-text {
+            font-size: 8rem;
+            font-weight: 900;
+            color: #ff0000;
+            text-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+            animation: boom 0.5s infinite alternate;
+        }
+        
+        @keyframes boom {
+            from { transform: scale(1); }
+            to { transform: scale(1.2); }
+        }
+        
+        .result-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+        
+        .result-title {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            color: #ff9800;
+        }
+        
+        .winner, .loser {
+            font-size: 1.8rem;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+        }
+        
+        .winner {
+            background: rgba(0, 150, 0, 0.3);
+            color: #4caf50;
+        }
+        
+        .loser {
+            background: rgba(200, 0, 0, 0.3);
+            color: #f44336;
+        }
+        
+        .cheat-note {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .player-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .player-input input {
+            flex: 1;
+        }
+        
+        .player-input button {
+            flex: 0 0 auto;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .game-info {
+                flex-direction: column;
+            }
+            
+            .current-player {
+                font-size: 1.5rem;
+            }
+            
+            .boom-text {
+                font-size: 5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>数字炸弹游戏</h1>
+            <p>在数字范围内猜测数字，猜中炸弹数字的玩家将受到惩罚！</p>
+            <p>由TTHILLTT制作，DeepSeek改编为网页版</p>
+        </div>
+        
+        <div class="game-container">
+            <!-- 设置阶段 -->
+            <div class="card" id="setup-card">
+                <h2 class="card-title"><i class="fas fa-cog"></i> 游戏设置</h2>
+                
+                <div class="input-group">
+                    <div class="input-container">
+                        <label for="min-range">最小数字</label>
+                        <input type="number" id="min-range" value="1">
+                    </div>
+                    
+                    <div class="input-container">
+                        <label for="max-range">最大数字</label>
+                        <input type="number" id="max-range" value="100">
+                    </div>
+                </div>
+                
+                <div class="input-container" style="display: none">
+                    <label for="player-count">玩家数量</label>
+                    <input type="number" id="player-count" min="2" max="10" value="3">
+                </div>
+                
+                <button id="setup-btn">
+                    <i class="fas fa-play"></i> 开始游戏
+                </button>
+            </div>
+            
+            <!-- 玩家设置 -->
+            <div class="card hidden" id="players-card">
+                <h2 class="card-title"><i class="fas fa-users"></i> 添加玩家</h2>
+                
+                <div class="input-container">
+                    <label for="player-name">玩家名称</label>
+                    <div class="player-input">
+                        <input type="text" id="player-name" placeholder="输入玩家名称">
+                        <button id="add-player-btn">
+                            <i class="fas fa-plus"></i> 添加
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="player-list" id="player-list">
+                    <!-- 玩家标签会动态添加到这里 -->
+                </div>
+                
+                <button class="btn-full" id="start-game-btn">
+                    <i class="fas fa-gamepad"></i> 开始游戏
+                </button>
+            </div>
+            
+            <!-- 游戏阶段 -->
+            <div class="card hidden" id="game-card">
+                <h2 class="card-title"><i class="fas fa-bomb"></i> 数字炸弹</h2>
+                
+                <div class="game-info">
+                    <div class="info-box">
+                        <h3>当前范围</h3>
+                        <div class="range-display" id="current-range">
+                            1 ~ 100
+                        </div>
+                    </div>
+                    
+                    <div class="info-box">
+                        <h3>剩余玩家</h3>
+                        <div class="info-value" id="remaining-players">
+                            3
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="current-player" id="current-player">
+                    玩家1的回合
+                </div>
+                
+                <div class="input-container">
+                    <label for="guess-input">输入你的猜测</label>
+                    <input type="text" id="guess-input" placeholder="输入范围内的数字">
+                </div>
+                
+                <button class="btn-full" id="guess-btn">
+                    <i class="fas fa-paper-plane"></i> 提交答案
+                </button>
+                
+                <p class="cheat-note">提示：输入作弊码 "1e45141919810" 可查看炸弹数字</p>
+            </div>
+            
+            <!-- 结果阶段 -->
+            <div class="card hidden" id="result-card">
+                <h2 class="card-title"><i class="fas fa-trophy"></i> 游戏结果</h2>
+                
+                <div class="result-container">
+                    <h3 class="result-title">炸弹爆炸！</h3>
+                    
+                    <div class="winner">
+                        <i class="fas fa-crown"></i> 赢家: <span id="winners">玩家2, 玩家3</span>
+                    </div>
+                    
+                    <div class="loser">
+                        <i class="fas fa-skull"></i> 输家: <span id="loser">玩家1</span>
+                    </div>
+                </div>
+                
+                <button class="btn-full" id="restart-btn">
+                    <i class="fas fa-redo"></i> 重新开始
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="boom-container" id="boom-container">
+        <div class="boom-text">BOOM!!!</div>
+    </div>
+    
+    <script>
+        // 游戏状态
+        const gameState = {
+            minRange: 1,
+            maxRange: 100,
+            bombNumber: 0,
+            players: [],
+            currentPlayerIndex: 0,
+            gameStarted: false
+        };
+        
+        // DOM 元素
+        const setupCard = document.getElementById('setup-card');
+        const playersCard = document.getElementById('players-card');
+        const gameCard = document.getElementById('game-card');
+        const resultCard = document.getElementById('result-card');
+        const playerList = document.getElementById('player-list');
+        const boomContainer = document.getElementById('boom-container');
+        
+        // 初始化游戏
+        function initGame() {
+            // 获取范围值
+            gameState.minRange = parseInt(document.getElementById('min-range').value) || 1;
+            gameState.maxRange = parseInt(document.getElementById('max-range').value) || 100;
+            
+            // 验证范围
+            if (gameState.minRange >= gameState.maxRange) {
+                alert('最大数字必须大于最小数字！');
+                return;
+            }
+            
+            // 获取玩家数量
+            const playerCount = parseInt(document.getElementById('player-count').value) || 3;
+            
+            // 清空玩家列表
+            gameState.players = [];
+            playerList.innerHTML = '';
+            
+            // 切换到玩家设置卡片
+            setupCard.classList.add('hidden');
+            playersCard.classList.remove('hidden');
+        }
+        
+        // 添加玩家
+        function addPlayer() {
+            const playerNameInput = document.getElementById('player-name');
+            const playerName = playerNameInput.value.trim();
+            
+            if (!playerName) {
+                alert('请输入玩家名称！');
+                return;
+            }
+            
+            // 添加到玩家列表
+            gameState.players.push(playerName);
+            
+            // 添加玩家标签
+            const playerTag = document.createElement('div');
+            playerTag.className = 'player-tag';
+            playerTag.innerHTML = `<i class="fas fa-user"></i> ${playerName}`;
+            playerList.appendChild(playerTag);
+            
+            // 清空输入框
+            playerNameInput.value = '';
+            
+            // 更新玩家计数显示
+            document.getElementById('remaining-players').textContent = gameState.players.length;
+        }
+        
+        // 开始游戏
+        function startGame() {
+            if (gameState.players.length < 2) {
+                alert('至少需要2名玩家！');
+                return;
+            }
+            
+            // 生成炸弹数字
+            gameState.bombNumber = Math.floor(
+                Math.random() * (gameState.maxRange - gameState.minRange + 1)
+            ) + gameState.minRange;
+            
+            // 重置当前玩家
+            gameState.currentPlayerIndex = 0;
+            gameState.gameStarted = true;
+            
+            // 更新显示
+            document.getElementById('current-range').textContent = 
+                `${gameState.minRange} ~ ${gameState.maxRange}`;
+            
+            document.getElementById('current-player').textContent = 
+                `${gameState.players[0]}的回合`;
+            
+            // 切换到游戏卡片
+            playersCard.classList.add('hidden');
+            gameCard.classList.remove('hidden');
+        }
+        
+        // 提交猜测
+        function submitGuess() {
+            const guessInput = document.getElementById('guess-input');
+            const guessValue = guessInput.value.trim();
+            
+            if (!guessValue) {
+                alert('请输入一个数字！');
+                return;
+            }
+            
+            // 检查作弊码
+            if (guessValue === "1e45141919810") {
+                alert(`炸弹数字是: ${gameState.bombNumber}`);
+                guessInput.value = '';
+                return;
+            }
+            
+            const guessNumber = parseInt(guessValue);
+            
+            // 验证输入
+            if (isNaN(guessNumber)) {
+                alert('请输入有效的数字！');
+                return;
+            }
+            
+            if (guessNumber < gameState.minRange || guessNumber > gameState.maxRange) {
+                alert(`数字必须在${gameState.minRange}到${gameState.maxRange}之间！`);
+                return;
+            }
+            
+            // 检查是否猜中炸弹
+            if (guessNumber === gameState.bombNumber) {
+                endGame();
+                return;
+            }
+            
+            // 更新范围
+            if (guessNumber < gameState.bombNumber && guessNumber > gameState.minRange) {
+                gameState.minRange = guessNumber;
+            } else if (guessNumber > gameState.bombNumber && guessNumber < gameState.maxRange) {
+                gameState.maxRange = guessNumber;
+            }
+            
+            // 更新范围显示
+            document.getElementById('current-range').textContent = 
+                `${gameState.minRange} ~ ${gameState.maxRange}`;
+            
+            // 切换到下一个玩家
+            gameState.currentPlayerIndex = (gameState.currentPlayerIndex + 1) % gameState.players.length;
+            
+            // 更新当前玩家显示
+            document.getElementById('current-player').textContent = 
+                `${gameState.players[gameState.currentPlayerIndex]}的回合`;
+            
+            // 清空输入框
+            guessInput.value = '';
+        }
+        
+        // 结束游戏
+        function endGame() {
+            // 显示爆炸效果
+            boomContainer.style.display = 'flex';
+            
+            // 爆炸动画
+            setTimeout(() => {
+                boomContainer.style.display = 'none';
+                
+                // 设置结果
+                const loser = gameState.players[gameState.currentPlayerIndex];
+                const winners = gameState.players.filter(
+                    (_, index) => index !== gameState.currentPlayerIndex
+                );
+                
+                document.getElementById('winners').textContent = winners.join(', ');
+                document.getElementById('loser').textContent = loser;
+                
+                // 切换到结果卡片
+                gameCard.classList.add('hidden');
+                resultCard.classList.remove('hidden');
+            }, 2000);
+        }
+        
+        // 重新开始游戏
+        function restartGame() {
+            resultCard.classList.add('hidden');
+            setupCard.classList.remove('hidden');
+            
+            // 重置输入
+            document.getElementById('min-range').value = "1";
+            document.getElementById('max-range').value = "100";
+            document.getElementById('player-count').value = "3";
+        }
+        
+        // 事件监听器
+        document.getElementById('setup-btn').addEventListener('click', initGame);
+        document.getElementById('add-player-btn').addEventListener('click', addPlayer);
+        document.getElementById('start-game-btn').addEventListener('click', startGame);
+        document.getElementById('guess-btn').addEventListener('click', submitGuess);
+        document.getElementById('restart-btn').addEventListener('click', restartGame);
+        
+        // 允许按Enter键提交
+        document.getElementById('player-name').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addPlayer();
+        });
+        
+        document.getElementById('guess-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') submitGuess();
+        });
+    </script>
+</body>
+</html>
