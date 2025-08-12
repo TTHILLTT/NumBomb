@@ -408,7 +408,7 @@
                     <i class="fas fa-paper-plane"></i> 提交答案
                 </button>
                 
-                <p class="cheat-note">提示：输入作弊码 "1e45141919810" 可查看炸弹数字</p>
+                <p class="cheat-note" style="display: none">提示：输入作弊码 "1e45141919810" 可查看炸弹数字</p>
             </div>
             
             <!-- 结果阶段 -->
@@ -509,8 +509,8 @@
         
         // 开始游戏
         function startGame() {
-            if (gameState.players.length < 2) {
-                alert('至少需要2名玩家！');
+            if (gameState.players.length < 1) {
+                alert('至少需要1名玩家！');
                 return;
             }
             
